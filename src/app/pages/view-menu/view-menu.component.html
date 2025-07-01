@@ -8,6 +8,16 @@
                     Menu Management
                 </h1>
                 <p class="page-subtitle">Manage your restaurant's menu items efficiently</p>
+                <div class="menu-stats" *ngIf="!isLoading">
+                    <span class="stat-item veg">
+                        <i class="bi bi-circle-fill text-success me-1"></i>
+                        {{ vegMenus.length }} Vegetarian Items
+                    </span>
+                    <span class="stat-item non-veg">
+                        <i class="bi bi-circle-fill text-danger me-1"></i>
+                        {{ nonVegMenus.length }} Non-Vegetarian Items
+                    </span>
+                </div>
             </div>
             <div class="header-actions">
                 <button class="btn btn-primary btn-lg add-menu-btn" routerLink="/add-menu">
@@ -18,57 +28,7 @@
         </div>
     </div>
 
-    <!-- Filters Section -->
-    <div class="filters-section">
-        <div class="filters-container">
-            <div class="filter-group">
-                <label class="filter-label">
-                    <i class="bi bi-search me-1"></i>Search Menu
-                </label>
-                <div class="search-input-wrapper">
-                    <input type="text" class="form-control search-input" [(ngModel)]="searchTerm"
-                        (input)="onSearchChange()" placeholder="Search by name or description...">
-                    <i class="bi bi-search search-icon"></i>
-                </div>
-            </div>
 
-            <div class="filter-group">
-                <label class="filter-label">
-                    <i class="bi bi-tag-fill me-1"></i>Category
-                </label>
-                <select class="form-select filter-select" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
-                    <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">
-                    <i class="bi bi-circle-fill me-1"></i>Type
-                </label>
-                <select class="form-select filter-select" [(ngModel)]="selectedType" (change)="onFilterChange()">
-                    <option *ngFor="let type of types" [value]="type.value">{{ type.label }}</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">
-                    <i class="bi bi-toggle-on me-1"></i>Status
-                </label>
-                <select class="form-select filter-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
-                    <option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</option>
-                </select>
-            </div>
-
-            <div class="filter-actions">
-                <button class="btn btn-outline-secondary reset-btn" (click)="clearFilters()">
-                    <i class="bi bi-arrow-clockwise me-1"></i>Reset
-                </button>
-                <button class="btn btn-outline-primary refresh-btn" (click)="loadMenus()">
-                    <i class="bi bi-arrow-repeat me-1"></i>Refresh
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- Status Messages -->
     <div class="status-messages" *ngIf="errorMessage">
@@ -79,26 +39,7 @@
         </div>
     </div>
 
-    <!-- Results Summary -->
-    <div class="results-summary" *ngIf="!isLoading">
-        <div class="results-info">
-            <span class="results-count">{{ filteredMenus.length }}</span>
-            <span class="results-text">menu items found</span>
-            <span class="total-count" *ngIf="filteredMenus.length !== menus.length">
-                (filtered from {{ menus.length }} total)
-            </span>
-        </div>
-        <div class="view-options">
-            <button class="btn btn-sm btn-outline-secondary view-toggle" [class.active]="viewMode === 'table'"
-                (click)="viewMode = 'table'">
-                <i class="bi bi-table me-1"></i>Table
-            </button>
-            <button class="btn btn-sm btn-outline-secondary view-toggle" [class.active]="viewMode === 'grid'"
-                (click)="viewMode = 'grid'">
-                <i class="bi bi-grid me-1"></i>Grid
-            </button>
-        </div>
-    </div>
+
 
     <!-- Loading State -->
     <div class="loading-container" *ngIf="isLoading">
@@ -108,168 +49,339 @@
         </div>
     </div>
 
-    <!-- Table View -->
-    <div class="table-container" *ngIf="!isLoading && viewMode === 'table'">
-        <div class="modern-table-wrapper">
-            <table class="modern-table">
-                <thead>
-                    <tr>
-                        <th class="col-menu-id">
-                            <div class="th-content">
-                                <i class="bi bi-hash me-1"></i>ID
-                            </div>
-                        </th>
-                        <th class="col-name">
-                            <div class="th-content">
-                                <i class="bi bi-card-text me-1"></i>Menu Item
-                            </div>
-                        </th>
-                        <th class="col-description">
-                            <div class="th-content">
-                                <i class="bi bi-file-text me-1"></i>Description
-                            </div>
-                        </th>
-                        <th class="col-price">
-                            <div class="th-content">
-                                <i class="bi bi-currency-dollar me-1"></i>Price
-                            </div>
-                        </th>
-                        <th class="col-category">
-                            <div class="th-content">
-                                <i class="bi bi-bookmark-fill me-1"></i>Category
-                            </div>
-                        </th>
-                        <th class="col-type">
-                            <div class="th-content">
-                                <i class="bi bi-circle-fill me-1"></i>Type
-                            </div>
-                        </th>
-                        <th class="col-status">
-                            <div class="th-content">
-                                <i class="bi bi-check-circle me-1"></i>Status
-                            </div>
-                        </th>
-                        <th class="col-actions">
-                            <div class="th-content">
-                                <i class="bi bi-gear me-1"></i>Actions
-                            </div>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let menu of filteredMenus; trackBy: trackByMenuId" class="table-row">
-                        <td class="menu-id-cell">
-                            <span class="menu-id">{{ menu.menuId }}</span>
-                        </td>
-                        <td class="name-cell">
-                            <div class="menu-name">{{ menu.menuName }}</div>
-                        </td>
-                        <td class="description-cell">
-                            <div class="description-content" [title]="menu.description">
-                                {{ menu.description.length > 60 ? (menu.description | slice:0:60) + '...' :
-                                menu.description }}
-                            </div>
-                        </td>
-                        <td class="price-cell">
-                            <div class="price-display">${{ menu.price | number:'1.2-2' }}</div>
-                        </td>
-                        <td class="category-cell">
-                            <span class="category-badge" [attr.data-category]="menu.category">
-                                <i class="category-icon" [ngClass]="getCategoryIcon(menu.category)"></i>
-                                {{ menu.category }}
-                            </span>
-                        </td>
-                        <td class="type-cell">
-                            <span class="type-badge" [attr.data-type]="menu.menuType">
-                                <i class="type-icon" [ngClass]="getTypeIcon(menu.menuType)"></i>
-                                {{ menu.menuType === 'VEG' ? 'Vegetarian' : 'Non-Vegetarian' }}
-                            </span>
-                        </td>
-                        <td class="status-cell">
-                            <button class="status-toggle" [attr.data-status]="menu.status" (click)="toggleStatus(menu)"
-                                [title]="'Click to toggle status'">
-                                <i class="status-icon" [ngClass]="getStatusIcon(menu.status)"></i>
-                                <span class="status-text">{{ menu.status === 'AVAILABLE' ? 'Available' : 'Unavailable'
-                                    }}</span>
-                            </button>
-                        </td>
-                        <td class="actions-cell">
-                            <div class="action-buttons">
-                                <button class="action-btn edit-btn" (click)="editMenu(menu)" title="Edit menu item">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                                <button class="action-btn delete-btn" (click)="deleteMenu(menu)"
-                                    title="Delete menu item">
-                                    <i class="bi bi-trash3"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
+    <!-- Content when not loading -->
+    <div *ngIf="!isLoading">
 
-                    <!-- Empty State -->
-                    <tr *ngIf="filteredMenus.length === 0" class="empty-row">
-                        <td colspan="8" class="empty-cell">
-                            <div class="empty-state">
-                                <i class="bi bi-inbox empty-icon"></i>
-                                <h3 class="empty-title">No menu items found</h3>
-                                <p class="empty-description"
-                                    *ngIf="searchTerm || selectedCategory || selectedType || selectedStatus">
-                                    Try adjusting your filters or
-                                    <button class="btn btn-link p-0" (click)="clearFilters()">clear all filters</button>
-                                </p>
-                                <p class="empty-description"
-                                    *ngIf="!searchTerm && !selectedCategory && !selectedType && !selectedStatus">
-                                    Start by adding your first menu item to get started.
-                                </p>
-                                <button class="btn btn-primary mt-3" routerLink="/add-menu"
-                                    *ngIf="!searchTerm && !selectedCategory && !selectedType && !selectedStatus">
-                                    <i class="bi bi-plus-circle me-2"></i>Add First Menu Item
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Grid View -->
-    <div class="grid-container" *ngIf="!isLoading && viewMode === 'grid'">
-        <div class="menu-grid">
-            <div *ngFor="let menu of filteredMenus; trackBy: trackByMenuId" class="menu-card">
-                <div class="card-header">
-                    <div class="card-title">{{ menu.menuName }}</div>
-                    <div class="card-price">${{ menu.price | number:'1.2-2' }}</div>
+        <!-- VEGETARIAN SECTION -->
+        <div class="menu-section veg-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="bi bi-circle-fill text-success me-2"></i>
+                    <h2>Vegetarian Menu</h2>
+                    <span class="section-count">{{ filteredVegMenus.length }} items</span>
                 </div>
-                <div class="card-body">
-                    <p class="card-description">{{ menu.description }}</p>
-                    <div class="card-meta">
-                        <span class="category-tag" [attr.data-category]="menu.category">
-                            <i [ngClass]="getCategoryIcon(menu.category)"></i>
-                            {{ menu.category }}
-                        </span>
-                        <span class="type-tag" [attr.data-type]="menu.menuType">
-                            <i [ngClass]="getTypeIcon(menu.menuType)"></i>
-                            {{ menu.menuType === 'VEG' ? 'Veg' : 'Non-Veg' }}
-                        </span>
+            </div>
+
+            <!-- Vegetarian Filters -->
+            <div class="filters-section">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-search me-1"></i>Search Vegetarian Menu
+                        </label>
+                        <div class="search-input-wrapper">
+                            <input type="text" class="form-control search-input" [(ngModel)]="vegSearchTerm"
+                                (input)="onVegSearchChange()" placeholder="Search vegetarian items...">
+                            <i class="bi bi-search search-icon"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="card-footer">
-                    <button class="status-btn" [attr.data-status]="menu.status" (click)="toggleStatus(menu)">
-                        <i [ngClass]="getStatusIcon(menu.status)"></i>
-                        {{ menu.status === 'AVAILABLE' ? 'Available' : 'Unavailable' }}
-                    </button>
-                    <div class="card-actions">
-                        <button class="card-action-btn edit" (click)="editMenu(menu)">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                        <button class="card-action-btn delete" (click)="deleteMenu(menu)">
-                            <i class="bi bi-trash"></i>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-tag-fill me-1"></i>Category
+                        </label>
+                        <select class="form-select filter-select" [(ngModel)]="vegSelectedCategory"
+                            (change)="onVegFilterChange()">
+                            <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-toggle-on me-1"></i>Status
+                        </label>
+                        <select class="form-select filter-select" [(ngModel)]="vegSelectedStatus"
+                            (change)="onVegFilterChange()">
+                            <option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button class="btn btn-outline-secondary reset-btn" (click)="clearVegFilters()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Reset
                         </button>
                     </div>
                 </div>
             </div>
+
+            <!-- Vegetarian Table -->
+            <div class="table-container">
+                <div class="modern-table-wrapper">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th class="col-menu-id">
+                                    <div class="th-content">
+                                        <i class="bi bi-hash me-1"></i>ID
+                                    </div>
+                                </th>
+                                <th class="col-name">
+                                    <div class="th-content">
+                                        <i class="bi bi-card-text me-1"></i>Menu Item
+                                    </div>
+                                </th>
+                                <th class="col-description">
+                                    <div class="th-content">
+                                        <i class="bi bi-file-text me-1"></i>Description
+                                    </div>
+                                </th>
+                                <th class="col-price">
+                                    <div class="th-content">
+                                        <i class="bi bi-currency-dollar me-1"></i>Price
+                                    </div>
+                                </th>
+                                <th class="col-category">
+                                    <div class="th-content">
+                                        <i class="bi bi-bookmark-fill me-1"></i>Category
+                                    </div>
+                                </th>
+                                <th class="col-status">
+                                    <div class="th-content">
+                                        <i class="bi bi-check-circle me-1"></i>Status
+                                    </div>
+                                </th>
+                                <th class="col-actions">
+                                    <div class="th-content">
+                                        <i class="bi bi-gear me-1"></i>Actions
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let menu of filteredVegMenus; trackBy: trackByMenuId" class="table-row">
+                                <td class="menu-id-cell">
+                                    <span class="menu-id">{{ menu.menuId }}</span>
+                                </td>
+                                <td class="name-cell">
+                                    <div class="menu-name">{{ menu.menuName }}</div>
+                                </td>
+                                <td class="description-cell">
+                                    <div class="description-content" [title]="menu.description">
+                                        {{ menu.description.length > 60 ? (menu.description | slice:0:60) + '...' :
+                                        menu.description }}
+                                    </div>
+                                </td>
+                                <td class="price-cell">
+                                    <div class="price-display">${{ menu.price | number:'1.2-2' }}</div>
+                                </td>
+                                <td class="category-cell">
+                                    <span class="category-badge" [attr.data-category]="menu.category">
+                                        <i class="category-icon" [ngClass]="getCategoryIcon(menu.category)"></i>
+                                        {{ menu.category }}
+                                    </span>
+                                </td>
+                                <td class="status-cell">
+                                    <button class="status-toggle" [attr.data-status]="menu.status"
+                                        (click)="toggleStatus(menu)" [title]="'Click to toggle status'">
+                                        <i class="status-icon" [ngClass]="getStatusIcon(menu.status)"></i>
+                                        <span class="status-text">{{ menu.status === 'AVAILABLE' ? 'Available' :
+                                            'Unavailable' }}</span>
+                                    </button>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn edit-btn" (click)="editMenu(menu)"
+                                            title="Edit menu item">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="action-btn delete-btn" (click)="deleteMenu(menu)"
+                                            title="Delete menu item">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Empty State for Vegetarian -->
+                            <tr *ngIf="filteredVegMenus.length === 0" class="empty-row">
+                                <td colspan="7" class="empty-cell">
+                                    <div class="empty-state">
+                                        <i class="bi bi-inbox empty-icon"></i>
+                                        <h3 class="empty-title">No vegetarian menu items found</h3>
+                                        <p class="empty-description"
+                                            *ngIf="vegSearchTerm || vegSelectedCategory || vegSelectedStatus">
+                                            Try adjusting your filters or
+                                            <button class="btn btn-link p-0" (click)="clearVegFilters()">clear all
+                                                filters</button>
+                                        </p>
+                                        <p class="empty-description"
+                                            *ngIf="!vegSearchTerm && !vegSelectedCategory && !vegSelectedStatus">
+                                            Start by adding your first vegetarian menu item.
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+
+        <!-- NON-VEGETARIAN SECTION -->
+        <div class="menu-section non-veg-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="bi bi-circle-fill text-danger me-2"></i>
+                    <h2>Non-Vegetarian Menu</h2>
+                    <span class="section-count">{{ filteredNonVegMenus.length }} items</span>
+                </div>
+            </div>
+
+            <!-- Non-Vegetarian Filters -->
+            <div class="filters-section">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-search me-1"></i>Search Non-Vegetarian Menu
+                        </label>
+                        <div class="search-input-wrapper">
+                            <input type="text" class="form-control search-input" [(ngModel)]="nonVegSearchTerm"
+                                (input)="onNonVegSearchChange()" placeholder="Search non-vegetarian items...">
+                            <i class="bi bi-search search-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-tag-fill me-1"></i>Category
+                        </label>
+                        <select class="form-select filter-select" [(ngModel)]="nonVegSelectedCategory"
+                            (change)="onNonVegFilterChange()">
+                            <option *ngFor="let cat of categories" [value]="cat.value">{{ cat.label }}</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="filter-label">
+                            <i class="bi bi-toggle-on me-1"></i>Status
+                        </label>
+                        <select class="form-select filter-select" [(ngModel)]="nonVegSelectedStatus"
+                            (change)="onNonVegFilterChange()">
+                            <option *ngFor="let status of statuses" [value]="status.value">{{ status.label }}</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button class="btn btn-outline-secondary reset-btn" (click)="clearNonVegFilters()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Non-Vegetarian Table -->
+            <div class="table-container">
+                <div class="modern-table-wrapper">
+                    <table class="modern-table">
+                        <thead>
+                            <tr>
+                                <th class="col-menu-id">
+                                    <div class="th-content">
+                                        <i class="bi bi-hash me-1"></i>ID
+                                    </div>
+                                </th>
+                                <th class="col-name">
+                                    <div class="th-content">
+                                        <i class="bi bi-card-text me-1"></i>Menu Item
+                                    </div>
+                                </th>
+                                <th class="col-description">
+                                    <div class="th-content">
+                                        <i class="bi bi-file-text me-1"></i>Description
+                                    </div>
+                                </th>
+                                <th class="col-price">
+                                    <div class="th-content">
+                                        <i class="bi bi-currency-dollar me-1"></i>Price
+                                    </div>
+                                </th>
+                                <th class="col-category">
+                                    <div class="th-content">
+                                        <i class="bi bi-bookmark-fill me-1"></i>Category
+                                    </div>
+                                </th>
+                                <th class="col-status">
+                                    <div class="th-content">
+                                        <i class="bi bi-check-circle me-1"></i>Status
+                                    </div>
+                                </th>
+                                <th class="col-actions">
+                                    <div class="th-content">
+                                        <i class="bi bi-gear me-1"></i>Actions
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let menu of filteredNonVegMenus; trackBy: trackByMenuId" class="table-row">
+                                <td class="menu-id-cell">
+                                    <span class="menu-id">{{ menu.menuId }}</span>
+                                </td>
+                                <td class="name-cell">
+                                    <div class="menu-name">{{ menu.menuName }}</div>
+                                </td>
+                                <td class="description-cell">
+                                    <div class="description-content" [title]="menu.description">
+                                        {{ menu.description.length > 60 ? (menu.description | slice:0:60) + '...' :
+                                        menu.description }}
+                                    </div>
+                                </td>
+                                <td class="price-cell">
+                                    <div class="price-display">${{ menu.price | number:'1.2-2' }}</div>
+                                </td>
+                                <td class="category-cell">
+                                    <span class="category-badge" [attr.data-category]="menu.category">
+                                        <i class="category-icon" [ngClass]="getCategoryIcon(menu.category)"></i>
+                                        {{ menu.category }}
+                                    </span>
+                                </td>
+                                <td class="status-cell">
+                                    <button class="status-toggle" [attr.data-status]="menu.status"
+                                        (click)="toggleStatus(menu)" [title]="'Click to toggle status'">
+                                        <i class="status-icon" [ngClass]="getStatusIcon(menu.status)"></i>
+                                        <span class="status-text">{{ menu.status === 'AVAILABLE' ? 'Available' :
+                                            'Unavailable' }}</span>
+                                    </button>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <button class="action-btn edit-btn" (click)="editMenu(menu)"
+                                            title="Edit menu item">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="action-btn delete-btn" (click)="deleteMenu(menu)"
+                                            title="Delete menu item">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Empty State for Non-Vegetarian -->
+                            <tr *ngIf="filteredNonVegMenus.length === 0" class="empty-row">
+                                <td colspan="7" class="empty-cell">
+                                    <div class="empty-state">
+                                        <i class="bi bi-inbox empty-icon"></i>
+                                        <h3 class="empty-title">No non-vegetarian menu items found</h3>
+                                        <p class="empty-description"
+                                            *ngIf="nonVegSearchTerm || nonVegSelectedCategory || nonVegSelectedStatus">
+                                            Try adjusting your filters or
+                                            <button class="btn btn-link p-0" (click)="clearNonVegFilters()">clear all
+                                                filters</button>
+                                        </p>
+                                        <p class="empty-description"
+                                            *ngIf="!nonVegSearchTerm && !nonVegSelectedCategory && !nonVegSelectedStatus">
+                                            Start by adding your first non-vegetarian menu item.
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 

@@ -14,30 +14,31 @@ import { MenuService } from '../../services/menu.service';
 })
 export class ViewMenuComponent implements OnInit {
   menus: Menu[] = [];
-  filteredMenus: Menu[] = [];
+  vegMenus: Menu[] = [];
+  nonVegMenus: Menu[] = [];
+  filteredVegMenus: Menu[] = [];
+  filteredNonVegMenus: Menu[] = [];
   isLoading = false;
   errorMessage = '';
   menuToDelete: Menu | null = null;
   showDeleteModal = false;
   viewMode: 'table' | 'grid' = 'table';
 
-  // Filters
-  searchTerm = '';
-  selectedCategory = '';
-  selectedType = '';
-  selectedStatus = '';
+  // Vegetarian Filters
+  vegSearchTerm = '';
+  vegSelectedCategory = '';
+  vegSelectedStatus = '';
+
+  // Non-Vegetarian Filters
+  nonVegSearchTerm = '';
+  nonVegSelectedCategory = '';
+  nonVegSelectedStatus = '';
 
   categories = [
     { value: '', label: 'All Categories' },
     { value: 'BREAKFAST', label: '🌅 Breakfast' },
     { value: 'LUNCH', label: '☀️ Lunch' },
     { value: 'DINNER', label: '🌙 Dinner' },
-  ];
-
-  types = [
-    { value: '', label: 'All Types' },
-    { value: 'VEG', label: '🥗 Vegetarian' },
-    { value: 'NON_VEG', label: '🍗 Non-Vegetarian' },
   ];
 
   statuses = [
@@ -59,7 +60,9 @@ export class ViewMenuComponent implements OnInit {
     this.menuService.getAllMenus().subscribe({
       next: (menus) => {
         this.menus = menus;
-        this.applyFilters();
+        this.separateMenusByType();
+        this.applyVegFilters();
+        this.applyNonVegFilters();
         this.isLoading = false;
       },
       error: (error) => {
@@ -71,38 +74,81 @@ export class ViewMenuComponent implements OnInit {
     });
   }
 
-  applyFilters() {
-    this.filteredMenus = this.menus.filter((menu) => {
-      const matchesSearch =
-        menu.menuName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        menu.description.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchesCategory =
-        !this.selectedCategory || menu.category === this.selectedCategory;
-      const matchesType =
-        !this.selectedType || menu.menuType === this.selectedType;
-      const matchesStatus =
-        !this.selectedStatus || menu.status === this.selectedStatus;
+  separateMenusByType() {
+    this.vegMenus = this.menus.filter((menu) => menu.menuType === 'VEG');
+    this.nonVegMenus = this.menus.filter((menu) => menu.menuType === 'NON_VEG');
+  }
 
-      return matchesSearch && matchesCategory && matchesType && matchesStatus;
+  // Vegetarian Menu Filters
+  applyVegFilters() {
+    this.filteredVegMenus = this.vegMenus.filter((menu) => {
+      const matchesSearch =
+        menu.menuName
+          .toLowerCase()
+          .includes(this.vegSearchTerm.toLowerCase()) ||
+        menu.description
+          .toLowerCase()
+          .includes(this.vegSearchTerm.toLowerCase());
+      const matchesCategory =
+        !this.vegSelectedCategory || menu.category === this.vegSelectedCategory;
+      const matchesStatus =
+        !this.vegSelectedStatus || menu.status === this.vegSelectedStatus;
+
+      return matchesSearch && matchesCategory && matchesStatus;
     });
   }
 
-  onSearchChange() {
-    this.applyFilters();
+  onVegSearchChange() {
+    this.applyVegFilters();
   }
 
-  onFilterChange() {
-    this.applyFilters();
+  onVegFilterChange() {
+    this.applyVegFilters();
   }
 
-  clearFilters() {
-    this.searchTerm = '';
-    this.selectedCategory = '';
-    this.selectedType = '';
-    this.selectedStatus = '';
-    this.applyFilters();
+  clearVegFilters() {
+    this.vegSearchTerm = '';
+    this.vegSelectedCategory = '';
+    this.vegSelectedStatus = '';
+    this.applyVegFilters();
   }
 
+  // Non-Vegetarian Menu Filters
+  applyNonVegFilters() {
+    this.filteredNonVegMenus = this.nonVegMenus.filter((menu) => {
+      const matchesSearch =
+        menu.menuName
+          .toLowerCase()
+          .includes(this.nonVegSearchTerm.toLowerCase()) ||
+        menu.description
+          .toLowerCase()
+          .includes(this.nonVegSearchTerm.toLowerCase());
+      const matchesCategory =
+        !this.nonVegSelectedCategory ||
+        menu.category === this.nonVegSelectedCategory;
+      const matchesStatus =
+        !this.nonVegSelectedStatus || menu.status === this.nonVegSelectedStatus;
+
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
+  }
+
+  onNonVegSearchChange() {
+    this.applyNonVegFilters();
+  }
+
+  onNonVegFilterChange() {
+    this.applyNonVegFilters();
+  }
+
+  clearNonVegFilters() {
+    this.nonVegSearchTerm = '';
+    this.nonVegSelectedCategory = '';
+    this.nonVegSelectedStatus = '';
+    this.applyNonVegFilters();
+  }
+
+  // Common methods
   editMenu(menu: Menu) {
     this.router.navigate(['/update-menu', menu.id]);
   }
@@ -144,7 +190,8 @@ export class ViewMenuComponent implements OnInit {
     this.menuService.updateMenuStatus(menu.id, newStatus).subscribe({
       next: (response) => {
         menu.status = newStatus;
-        this.applyFilters();
+        this.applyVegFilters();
+        this.applyNonVegFilters();
       },
       error: (error) => {
         this.errorMessage =
