@@ -1,0 +1,150 @@
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h2 class="mb-0 text-center"><i class="bi bi-pencil-square me-2"></i>Update Menu Item</h2>
+                    <div class="text-center mt-2" *ngIf="currentMenu">
+                        <small class="opacity-75">Editing: {{ currentMenu.menuName }} (ID: {{ currentMenu.menuId
+                            }})</small>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Loading Spinner -->
+                    <div class="text-center py-5" *ngIf="isLoading && !currentMenu">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading menu data...</p>
+                    </div>
+
+                    <!-- Form Content -->
+                    <div *ngIf="!isLoading || currentMenu">
+                        <!-- Success Message -->
+                        <div class="alert alert-success alert-dismissible fade show" *ngIf="successMessage">
+                            <i class="bi bi-check-circle me-2"></i>{{ successMessage }}
+                            <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div class="alert alert-danger alert-dismissible fade show" *ngIf="errorMessage">
+                            <i class="bi bi-exclamation-circle me-2"></i>{{ errorMessage }}
+                            <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+                        </div>
+
+                        <form [formGroup]="menuForm" (ngSubmit)="onSubmit()">
+                            <div class="row">
+                                <!-- Menu Name -->
+                                <div class="col-md-12 mb-4">
+                                    <label for="menuName" class="form-label fw-semibold">
+                                        <i class="bi bi-card-text me-2 text-primary"></i>Menu Name <span
+                                            class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control form-control-lg" id="menuName"
+                                        formControlName="menuName"
+                                        [class.is-invalid]="menuForm.get('menuName')?.invalid && menuForm.get('menuName')?.touched"
+                                        placeholder="Enter menu item name">
+                                    <div class="invalid-feedback" *ngIf="getFieldError('menuName')">
+                                        {{ getFieldError('menuName') }}
+                                    </div>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="col-md-12 mb-4">
+                                    <label for="description" class="form-label fw-semibold">
+                                        <i class="bi bi-text-paragraph me-2 text-primary"></i>Description
+                                    </label>
+                                    <textarea class="form-control" id="description" formControlName="description"
+                                        rows="4"
+                                        [class.is-invalid]="menuForm.get('description')?.invalid && menuForm.get('description')?.touched"
+                                        placeholder="Enter detailed description of the menu item"></textarea>
+                                    <div class="invalid-feedback" *ngIf="getFieldError('description')">
+                                        {{ getFieldError('description') }}
+                                    </div>
+                                </div>
+
+                                <!-- Price -->
+                                <div class="col-md-6 mb-4">
+                                    <label for="price" class="form-label fw-semibold">
+                                        <i class="bi bi-currency-dollar me-2 text-primary"></i>Price <span
+                                            class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light"><i
+                                                class="bi bi-currency-dollar"></i></span>
+                                        <input type="number" class="form-control" id="price" formControlName="price"
+                                            step="0.01" min="0"
+                                            [class.is-invalid]="menuForm.get('price')?.invalid && menuForm.get('price')?.touched"
+                                            placeholder="0.00">
+                                    </div>
+                                    <div class="invalid-feedback" *ngIf="getFieldError('price')">
+                                        {{ getFieldError('price') }}
+                                    </div>
+                                </div>
+
+                                <!-- Menu Type -->
+                                <div class="col-md-6 mb-4">
+                                    <label for="menuType" class="form-label fw-semibold">
+                                        <i class="bi bi-bookmark-star me-2 text-primary"></i>Menu Type <span
+                                            class="text-danger">*</span>
+                                    </label>
+                                    <select class="form-select form-select-lg" id="menuType" formControlName="menuType"
+                                        [class.is-invalid]="menuForm.get('menuType')?.invalid && menuForm.get('menuType')?.touched">
+                                        <option value="">Select menu type</option>
+                                        <option *ngFor="let type of menuTypes" [value]="type.value">
+                                            <span *ngIf="type.value === 'VEG'">🥗</span>
+                                            <span *ngIf="type.value === 'NON_VEG'">🍗</span>
+                                            {{ type.label }}
+                                        </option>
+                                    </select>
+                                    <div class="invalid-feedback" *ngIf="getFieldError('menuType')">
+                                        {{ getFieldError('menuType') }}
+                                    </div>
+                                </div>
+
+                                <!-- Category -->
+                                <div class="col-md-12 mb-4">
+                                    <label class="form-label fw-semibold">
+                                        <i class="bi bi-clock me-2 text-primary"></i>Category <span
+                                            class="text-danger">*</span>
+                                    </label>
+                                    <div class="d-flex gap-4 flex-wrap">
+                                        <div class="form-check" *ngFor="let cat of categories">
+                                            <input class="form-check-input" type="radio" [id]="'category_' + cat.value"
+                                                [value]="cat.value" formControlName="category">
+                                            <label class="form-check-label" [for]="'category_' + cat.value">
+                                                {{ cat.label }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="invalid-feedback d-block" *ngIf="getFieldError('category')">
+                                        {{ getFieldError('category') }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" class="btn btn-outline-secondary btn-lg px-4"
+                                            (click)="onCancel()" [disabled]="isLoading">
+                                            <i class="bi bi-x-circle me-2"></i>Cancel
+                                        </button>
+                                        <button type="submit" class="btn btn-primary btn-lg px-4"
+                                            [disabled]="isLoading || menuForm.invalid">
+                                            <span *ngIf="isLoading"
+                                                class="spinner-border spinner-border-sm me-2"></span>
+                                            <i *ngIf="!isLoading" class="bi bi-check-circle me-2"></i>
+                                            {{ isLoading ? 'Updating...' : 'Update Menu Item' }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

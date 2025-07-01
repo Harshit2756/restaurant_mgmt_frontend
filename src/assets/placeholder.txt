@@ -1,0 +1,2 @@
+This is a placeholder file to ensure the assets directory exists.
+You can add a restaurant hero image (restaurant-hero.jpg) to the assets/images/ directory for the home page. 
