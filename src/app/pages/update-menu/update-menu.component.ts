@@ -8,14 +8,14 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CreateMenuRequest, Menu } from '../../models/menu.model';
 import { MenuService } from '../../services/menu.service';
 
 @Component({
   selector: 'app-update-menu',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './update-menu.component.html',
   styleUrl: './update-menu.component.css',
 })
@@ -198,6 +198,55 @@ export class UpdateMenuComponent implements OnInit {
     }
 
     return null;
+  }
+
+  // Enhanced Validation Methods
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.menuForm.get(fieldName);
+    return !!(field?.invalid && field.touched);
+  }
+
+  markFieldAsTouched(fieldName: string): void {
+    const field = this.menuForm.get(fieldName);
+    field?.markAsTouched();
+  }
+
+  clearFieldError(fieldName: string): void {
+    // This method is for UI feedback, actual clearing happens on value change
+    const field = this.menuForm.get(fieldName);
+    if (field && field.errors) {
+      // Re-validate the field to clear errors if value is now valid
+      field.updateValueAndValidity();
+    }
+  }
+
+  getDescriptionLength(): number {
+    const description = this.menuForm.get('description')?.value || '';
+    return description.length;
+  }
+
+  resetForm(): void {
+    if (this.currentMenu) {
+      // Reset to original values
+      this.populateForm(this.currentMenu);
+    } else {
+      // Reset to empty form
+      this.menuForm.reset();
+    }
+    this.markFormGroupUntouched();
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  isFormValid(): boolean {
+    return this.menuForm.valid;
+  }
+
+  private markFormGroupUntouched(): void {
+    Object.keys(this.menuForm.controls).forEach((key) => {
+      const control = this.menuForm.get(key);
+      control?.markAsUntouched();
+    });
   }
 
   getFieldError(fieldName: string): string {

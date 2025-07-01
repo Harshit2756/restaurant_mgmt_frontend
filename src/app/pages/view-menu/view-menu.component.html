@@ -184,7 +184,8 @@
                                             title="Edit menu item">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        <button class="action-btn delete-btn" (click)="deleteMenu(menu)"
+                                        <button *ngIf="menu.status === 'UNAVAILABLE'" class="action-btn delete-btn"
+                                            (click)="deleteMenu(menu)"
                                             title="Delete menu item">
                                             <i class="bi bi-trash3"></i>
                                         </button>
@@ -349,7 +350,8 @@
                                             title="Edit menu item">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
-                                        <button class="action-btn delete-btn" (click)="deleteMenu(menu)"
+                                        <button *ngIf="menu.status === 'UNAVAILABLE'" class="action-btn delete-btn"
+                                            (click)="deleteMenu(menu)"
                                             title="Delete menu item">
                                             <i class="bi bi-trash3"></i>
                                         </button>

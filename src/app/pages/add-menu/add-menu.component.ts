@@ -8,14 +8,14 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CreateMenuRequest } from '../../models/menu.model';
 import { MenuService } from '../../services/menu.service';
 
 @Component({
   selector: 'app-add-menu',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './add-menu.component.html',
   styleUrl: './add-menu.component.css',
 })
@@ -164,7 +164,7 @@ export class AddMenuComponent {
 
   getFieldError(fieldName: string): string {
     const field = this.menuForm.get(fieldName);
-    if (field?.errors ) {
+    if (field?.errors && field.touched) {
       const errors = field.errors;
 
       // Required validation
@@ -215,5 +215,49 @@ export class AddMenuComponent {
       }
     }
     return '';
+  }
+
+  // Improved form validation methods
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.menuForm.get(fieldName);
+    return !!(field && field.invalid && field.touched);
+  }
+
+  markFieldAsTouched(fieldName: string): void {
+    const field = this.menuForm.get(fieldName);
+    if (field) {
+      field.markAsTouched();
+    }
+  }
+
+  clearFieldError(fieldName: string): void {
+    // Optional: Clear custom error states if needed
+    // This can be used for real-time validation feedback
+  }
+
+  getDescriptionLength(): number {
+    const description = this.menuForm.get('description')?.value || '';
+    return description.length;
+  }
+
+  resetForm(): void {
+    this.menuForm.reset();
+    this.errorMessage = '';
+    this.successMessage = '';
+    // Reset all touched states
+    this.markFormGroupUntouched();
+  }
+
+  isFormValid(): boolean {
+    // Check if form is valid and all required fields are filled
+    return this.menuForm.valid;
+  }
+
+  private markFormGroupUntouched(): void {
+    Object.keys(this.menuForm.controls).forEach((key) => {
+      const control = this.menuForm.get(key);
+      control?.markAsUntouched();
+      control?.markAsPristine();
+    });
   }
 }
